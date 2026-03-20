@@ -13,6 +13,35 @@ import FindModal   from "./components/FindModal";
 import ListingModal from "./components/ListingModal";
 import SoldModal   from "./components/SoldModal";
 import { Spinner } from "./components/UI";
+
+function SplashScreen() {
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "#080d1a",
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center", gap: 16, zIndex: 999,
+    }}>
+      <div style={{
+        width: 52, height: 52,
+        background: "linear-gradient(135deg, #00e5c8, #00a896)",
+        borderRadius: 14, display: "flex", alignItems: "center",
+        justifyContent: "center", fontSize: 26,
+      }}>↗</div>
+      <div style={{
+        fontFamily: "'Barlow Condensed', sans-serif",
+        fontSize: 28, fontWeight: 700, color: "#fff", letterSpacing: 1,
+      }}>
+        FLIP<span style={{ color: "#00e5c8" }}>TRACK</span>
+      </div>
+      <div style={{
+        width: 32, height: 3, borderRadius: 2,
+        background: "linear-gradient(90deg, #00e5c8, #00a896)",
+        animation: "shimmer 1.2s ease infinite",
+        backgroundSize: "200% auto",
+      }} />
+    </div>
+  );
+}
 import { calcFee } from "./utils";
 
 // ─── Firestore collection refs ─────────────────────────────
@@ -23,14 +52,24 @@ const COL = {
   revenue:  collection(db, "revenue"),
 };
 
-function useCollection(col) {
-  const [data, setData]     = useState([]);
-  const [loading, setLoading] = useState(true);
+function useCollection(col, cacheKey) {
+  const [data, setData] = useState(() => {
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      return cached ? JSON.parse(cached) : [];
+    } catch { return []; }
+  });
+  const [loading, setLoading] = useState(() => {
+    try { return !localStorage.getItem(cacheKey); }
+    catch { return true; }
+  });
 
   useEffect(() => {
     const unsub = onSnapshot(col, (snap) => {
-      setData(snap.docs.map((d) => ({ ...d.data(), _docId: d.id })));
+      const docs = snap.docs.map((d) => ({ ...d.data(), _docId: d.id }));
+      setData(docs);
       setLoading(false);
+      try { localStorage.setItem(cacheKey, JSON.stringify(docs)); } catch {}
     });
     return unsub;
   }, []); // eslint-disable-line
@@ -87,10 +126,10 @@ function Tab({ label, count, active, onClick }) {
 export default function App() {
   const [tab, setTab] = useState("dashboard");
 
-  const [finds,    findsLoading]    = useCollection(COL.finds);
-  const [listings, listingsLoading] = useCollection(COL.listings);
-  const [sold,     soldLoading]     = useCollection(COL.sold);
-  const [revenue,  revenueLoading]  = useCollection(COL.revenue);
+  const [finds,    findsLoading]    = useCollection(COL.finds,    "ft_finds");
+  const [listings, listingsLoading] = useCollection(COL.listings, "ft_listings");
+  const [sold,     soldLoading]     = useCollection(COL.sold,     "ft_sold");
+  const [revenue,  revenueLoading]  = useCollection(COL.revenue,  "ft_revenue");
 
   // Modal state
   const [showFindModal,    setShowFindModal]    = useState(false);
@@ -99,6 +138,14 @@ export default function App() {
   const [soldTarget,       setSoldTarget]       = useState(null);
 
   const loading = findsLoading || listingsLoading || soldLoading || revenueLoading;
+  const [splashDone, setSplashDone] = useState(false);
+
+  useEffect(() => {
+    if (!loading) {
+      const t = setTimeout(() => setSplashDone(true), 300);
+      return () => clearTimeout(t);
+    }
+  }, [loading]);
 
   // ── FINDS ──────────────────────────────────────────────
   const addFind = useCallback(async (find) => {
@@ -165,6 +212,7 @@ export default function App() {
 
   return (
     <div style={S.app}>
+      {!splashDone && <SplashScreen />}
       {/* NAV */}
       <nav style={S.nav}>
         <div style={S.navLogo}>
@@ -189,7 +237,7 @@ export default function App() {
 
       {/* CONTENT */}
       <div style={S.content}>
-        {loading ? <Spinner /> : (
+        {splashDone && (
           <>
             {tab === "dashboard" && (
               <Dashboard finds={finds} listings={listings} sold={sold} revenue={sortedRevenue} />
