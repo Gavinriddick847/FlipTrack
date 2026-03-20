@@ -6,7 +6,7 @@ function SoldCard({ item, onEdit, onDelete, delay }) {
   const shipping = item.shipping || 0;
   const fees     = item.fees     || 0;
   const profit   = item.price - item.cost - shipping - fees;
-  const roi      = item.cost > 0 ? ((profit / item.cost) * 100).toFixed(1) : "0.0";
+  const roi      = item.cost > 0 ? ((profit / item.cost) * 100).toFixed(1) : null;
 
   return (
     <div style={{
@@ -33,7 +33,7 @@ function SoldCard({ item, onEdit, onDelete, delay }) {
           Cost {fmtMoney(item.cost)}
           {shipping > 0 && <> · Ship {fmtMoney(shipping)}</>}
           {fees     > 0 && <> · Fees {fmtMoney(fees)}</>}
-          {" · ROI "}{roi}%
+          {roi !== null && <> · ROI {roi}%</>}
         </span>
         <span style={{ fontSize: 14, fontWeight: 600, color: profit >= 0 ? "var(--green)" : "var(--red)" }}>
           {profit >= 0 ? "+" : "-"}{fmtMoney(profit)}

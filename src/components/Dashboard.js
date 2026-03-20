@@ -46,7 +46,9 @@ export default function Dashboard({ finds, listings, sold, revenue }) {
   const fees     = sold.reduce((s, i) => s + (i.fees || 0), 0);
   const shipping = sold.reduce((s, i) => s + (i.shipping || 0), 0);
   const net    = gross - cost - fees - shipping;
-  const rois   = sold.map((i) => (i.price - i.cost - (i.fees || 0) - (i.shipping || 0)) / i.cost * 100);
+  const rois   = sold
+    .filter((i) => i.cost > 0)
+    .map((i) => (i.price - i.cost - (i.fees || 0) - (i.shipping || 0)) / i.cost * 100);
   const avgROI = rois.length ? rois.reduce((a, b) => a + b, 0) / rois.length : 0;
   const activeCost = listings.reduce((s, i) => s + i.cost, 0);
   const findCost   = finds.reduce((s, i) => s + i.cost, 0);
