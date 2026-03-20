@@ -46,10 +46,7 @@ export default function Dashboard({ finds, listings, sold, revenue }) {
   const fees     = sold.reduce((s, i) => s + (i.fees || 0), 0);
   const shipping = sold.reduce((s, i) => s + (i.shipping || 0), 0);
   const net    = gross - cost - fees - shipping;
-  const rois   = sold
-    .filter((i) => i.cost > 0)
-    .map((i) => (i.price - i.cost - (i.fees || 0) - (i.shipping || 0)) / i.cost * 100);
-  const avgROI = rois.length ? rois.reduce((a, b) => a + b, 0) / rois.length : 0;
+  const potentialProfit = listings.reduce((s, i) => s + (i.price - i.cost - (i.fees || 0) - (i.shipping || 0)), 0);
   const activeCost = listings.reduce((s, i) => s + i.cost, 0);
   const findCost   = finds.reduce((s, i) => s + i.cost, 0);
   const invested   = activeCost + findCost;
@@ -60,7 +57,7 @@ export default function Dashboard({ finds, listings, sold, revenue }) {
         <StatCard label="NET PROFIT"     value={`${net < 0 ? "-" : ""}${fmtMoney(net)}`}   sub="after fees & costs"   color={net >= 0 ? "var(--teal)" : "var(--red)"}  accent delay={0} />
         <StatCard label="GROSS REV"      value={fmtMoney(gross)}     sub={`${sold.length} items sold`}   delay={0.05} />
         <StatCard label="TOTAL INVESTED" value={fmtMoney(invested)}  sub="active + finds"               color="var(--amber)" delay={0.1} />
-        <StatCard label="AVG ROI"        value={fmtPct(avgROI)}      sub="per sold item"                color={avgROI >= 0 ? "var(--green)" : "var(--red)"} delay={0.15} />
+        <StatCard label="POTENTIAL PROFIT" value={fmtMoney(potentialProfit)} sub="if all listings sell" color={potentialProfit >= 0 ? "var(--green)" : "var(--red)"} delay={0.15} />
       </div>
 
       {revenue.length > 0 && <RevenueChart revenue={revenue} />}
