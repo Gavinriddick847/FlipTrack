@@ -42,7 +42,7 @@ function SplashScreen() {
     </div>
   );
 }
-import { calcFee } from "./utils";
+
 
 // ─── Firestore collection refs ─────────────────────────────
 const COL = {

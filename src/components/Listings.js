@@ -1,10 +1,11 @@
 import React from "react";
 import { Pill, SectionHeader, BtnPrimary, BtnTealOutline, BtnDanger, Empty } from "./UI";
-import { fmtMoney, calcFee } from "../utils";
+import { fmtMoney } from "../utils";
 
 function ListingCard({ listing, onMarkSold, onDelete, delay }) {
-  const fee  = calcFee(listing.platform, listing.price);
-  const net  = listing.price - listing.cost - fee;
+  const shipping = listing.shipping || 0;
+  const fees     = listing.fees     || 0;
+  const net      = listing.price - listing.cost - shipping - fees;
 
   return (
     <div style={{
@@ -28,10 +29,12 @@ function ListingCard({ listing, onMarkSold, onDelete, delay }) {
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, marginTop: 8, borderTop: "1px solid var(--border)" }}>
         <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-          Cost {fmtMoney(listing.cost)} · Fee ~{fmtMoney(fee)}
+          Cost {fmtMoney(listing.cost)}
+          {shipping > 0 && <> · Ship {fmtMoney(shipping)}</>}
+          {fees > 0     && <> · Fees {fmtMoney(fees)}</>}
         </span>
         <span style={{ fontSize: 13, color: net >= 0 ? "var(--green)" : "var(--red)" }}>
-          Net ~{fmtMoney(net)}
+          {fees > 0 || shipping > 0 ? `Net ${fmtMoney(net)}` : "No fees entered"}
         </span>
       </div>
       <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>

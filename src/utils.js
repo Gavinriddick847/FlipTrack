@@ -2,17 +2,6 @@ export const CATEGORIES = ['Electronics','Clothing','Collectibles','Sneakers','B
 
 export const PLATFORMS = ['eBay','Facebook Marketplace','Depop','Mercari'];
 
-export const PLATFORM_FEES = {
-  'eBay': 0.1335,
-  'Facebook Marketplace': 0,
-  'Depop': 0.10,
-  'Mercari': 0.10,
-};
-
-export function calcFee(platform, price) {
-  return (PLATFORM_FEES[platform] || 0) * price;
-}
-
 export function fmtMoney(v) {
   return '$' + Math.abs(v).toFixed(2);
 }

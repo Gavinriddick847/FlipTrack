@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import { Modal, ms } from "./Modal";
-import { PLATFORMS, calcFee, fmtMoney, genId, today } from "../utils";
+import { PLATFORMS, fmtMoney, genId, today } from "../utils";
 
 export default function SoldModal({ listing, onSave, onClose }) {
   const [price,    setPrice]    = useState(String(listing.price));
   const [platform, setPlatform] = useState(listing.platform);
+  const [shipping, setShipping] = useState(String(listing.shipping || ""));
+  const [fees,     setFees]     = useState(String(listing.fees     || ""));
 
-  const p   = parseFloat(price) || 0;
-  const fee = calcFee(platform, p);
-  const net = p - listing.cost - fee;
+  const p = parseFloat(price)    || 0;
+  const s = parseFloat(shipping) || 0;
+  const f = parseFloat(fees)     || 0;
+  const net = p - listing.cost - s - f;
 
   function save() {
     onSave({
@@ -17,9 +20,10 @@ export default function SoldModal({ listing, onSave, onClose }) {
       cat:      listing.cat,
       cost:     listing.cost,
       price:    p,
+      shipping: s,
+      fees:     f,
       platform,
       date:     today(),
-      fees:     fee,
     });
     onClose();
   }
@@ -43,9 +47,25 @@ export default function SoldModal({ listing, onSave, onClose }) {
         </div>
       </div>
 
+      <div style={ms.row}>
+        <div style={ms.group}>
+          <label style={ms.label}>SHIPPING COST</label>
+          <input style={ms.input} type="number" placeholder="0.00" step="0.01"
+            value={shipping} onChange={(e) => setShipping(e.target.value)} />
+        </div>
+        <div style={ms.group}>
+          <label style={ms.label}>PLATFORM FEES</label>
+          <input style={ms.input} type="number" placeholder="0.00" step="0.01"
+            value={fees} onChange={(e) => setFees(e.target.value)} />
+        </div>
+      </div>
+
       <div style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "'DM Mono', monospace", marginTop: -4, marginBottom: 14 }}>
-        ~{fmtMoney(fee)} platform fee · net{" "}
+        Net{" "}
         <span style={{ color: net >= 0 ? "var(--green)" : "var(--red)" }}>{fmtMoney(net)}</span>
+        {(s > 0 || f > 0) && (
+          <span> · Ship {fmtMoney(s)} · Fees {fmtMoney(f)}</span>
+        )}
       </div>
 
       <div style={ms.actions}>

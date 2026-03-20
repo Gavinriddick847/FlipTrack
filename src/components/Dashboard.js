@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { StatCard } from "./UI";
-import { fmtMoney, fmtPct, calcFee } from "../utils";
+import { fmtMoney, fmtPct } from "../utils";
 
 function RevenueChart({ revenue }) {
   const max = Math.max(...revenue.map((r) => r.val), 1);
@@ -43,9 +43,10 @@ function RevenueChart({ revenue }) {
 export default function Dashboard({ finds, listings, sold, revenue }) {
   const gross  = sold.reduce((s, i) => s + i.price, 0);
   const cost   = sold.reduce((s, i) => s + i.cost, 0);
-  const fees   = sold.reduce((s, i) => s + (i.fees || 0), 0);
-  const net    = gross - cost - fees;
-  const rois   = sold.map((i) => (i.price - i.cost - (i.fees || 0)) / i.cost * 100);
+  const fees     = sold.reduce((s, i) => s + (i.fees || 0), 0);
+  const shipping = sold.reduce((s, i) => s + (i.shipping || 0), 0);
+  const net    = gross - cost - fees - shipping;
+  const rois   = sold.map((i) => (i.price - i.cost - (i.fees || 0) - (i.shipping || 0)) / i.cost * 100);
   const avgROI = rois.length ? rois.reduce((a, b) => a + b, 0) / rois.length : 0;
   const activeCost = listings.reduce((s, i) => s + i.cost, 0);
   const findCost   = finds.reduce((s, i) => s + i.cost, 0);
@@ -65,6 +66,7 @@ export default function Dashboard({ finds, listings, sold, revenue }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <StatCard label="COGS (SOLD)"      value={fmtMoney(cost)}           sub="cost of goods sold"    color="var(--red)"   delay={0.2} />
         <StatCard label="PLATFORM FEES"    value={fmtMoney(fees)}           sub="all platforms"         color="var(--red)"   delay={0.25} />
+        <StatCard label="SHIPPING PAID"    value={fmtMoney(shipping)}       sub="total shipping costs"  color="var(--red)"   delay={0.28} />
         <StatCard label="ACTIVE LISTINGS"  value={String(listings.length)}  sub={`${fmtMoney(activeCost)} invested`}          delay={0.3} />
         <StatCard label="FINDS BANKED"     value={String(finds.length)}     sub={`${fmtMoney(findCost)} in stock`}            delay={0.35} />
       </div>

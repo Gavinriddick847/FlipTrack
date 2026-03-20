@@ -3,8 +3,10 @@ import { Pill, SectionHeader, Empty } from "./UI";
 import { fmtMoney } from "../utils";
 
 function SoldCard({ item, delay }) {
-  const profit = item.price - item.cost - (item.fees || 0);
-  const roi    = item.cost > 0 ? ((profit / item.cost) * 100).toFixed(1) : "0.0";
+  const shipping = item.shipping || 0;
+  const fees     = item.fees     || 0;
+  const profit   = item.price - item.cost - shipping - fees;
+  const roi      = item.cost > 0 ? ((profit / item.cost) * 100).toFixed(1) : "0.0";
 
   return (
     <div style={{
@@ -28,7 +30,10 @@ function SoldCard({ item, delay }) {
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, marginTop: 8, borderTop: "1px solid var(--border)" }}>
         <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-          Cost {fmtMoney(item.cost)} · Fee {fmtMoney(item.fees || 0)} · ROI {roi}%
+          Cost {fmtMoney(item.cost)}
+          {shipping > 0 && <> · Ship {fmtMoney(shipping)}</>}
+          {fees     > 0 && <> · Fees {fmtMoney(fees)}</>}
+          {" · ROI "}{roi}%
         </span>
         <span style={{ fontSize: 14, fontWeight: 600, color: profit >= 0 ? "var(--green)" : "var(--red)" }}>
           {profit >= 0 ? "+" : "-"}{fmtMoney(profit)}
@@ -39,7 +44,11 @@ function SoldCard({ item, delay }) {
 }
 
 export default function Sold({ sold }) {
-  const totalNet = sold.reduce((s, i) => s + (i.price - i.cost - (i.fees || 0)), 0);
+  const totalNet = sold.reduce((s, i) => {
+    const shipping = i.shipping || 0;
+    const fees     = i.fees     || 0;
+    return s + (i.price - i.cost - shipping - fees);
+  }, 0);
 
   return (
     <div>
