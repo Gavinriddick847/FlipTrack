@@ -1,8 +1,8 @@
 import React from "react";
-import { Pill, SectionHeader, BtnPrimary, BtnTealOutline, BtnDanger, Empty } from "./UI";
+import { Pill, SectionHeader, BtnPrimary, BtnTealOutline, BtnDanger, BtnEdit, Empty } from "./UI";
 import { fmtMoney } from "../utils";
 
-function ListingCard({ listing, onMarkSold, onDelete, delay }) {
+function ListingCard({ listing, onMarkSold, onEdit, onDelete, delay }) {
   const shipping = listing.shipping || 0;
   const fees     = listing.fees     || 0;
   const net      = listing.price - listing.cost - shipping - fees;
@@ -39,13 +39,14 @@ function ListingCard({ listing, onMarkSold, onDelete, delay }) {
       </div>
       <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
         <BtnTealOutline onClick={onMarkSold}>Mark Sold</BtnTealOutline>
+        <BtnEdit onClick={onEdit}>Edit</BtnEdit>
         <BtnDanger onClick={onDelete}>Remove</BtnDanger>
       </div>
     </div>
   );
 }
 
-export default function Listings({ listings, onAddListing, onMarkSold, onDelete }) {
+export default function Listings({ listings, onAddListing, onMarkSold, onEdit, onDelete }) {
   return (
     <div>
       <SectionHeader
@@ -58,6 +59,7 @@ export default function Listings({ listings, onAddListing, onMarkSold, onDelete 
             <ListingCard
               key={l.id} listing={l} delay={i * 0.05}
               onMarkSold={() => onMarkSold(l)}
+              onEdit={() => onEdit(l)}
               onDelete={() => onDelete(l.id)}
             />
           ))

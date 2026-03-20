@@ -9,7 +9,10 @@ import Dashboard   from "./components/Dashboard";
 import Finds       from "./components/Finds";
 import Listings    from "./components/Listings";
 import Sold        from "./components/Sold";
-import FindModal   from "./components/FindModal";
+import FindModal       from "./components/FindModal";
+import EditFindModal    from "./components/EditFindModal";
+import EditListingModal from "./components/EditListingModal";
+import EditSoldModal    from "./components/EditSoldModal";
 import ListingModal from "./components/ListingModal";
 import SoldModal   from "./components/SoldModal";
 import { Spinner } from "./components/UI";
@@ -136,6 +139,9 @@ export default function App() {
   const [showListingModal, setShowListingModal] = useState(false);
   const [listingPrefill,   setListingPrefill]   = useState({});
   const [soldTarget,       setSoldTarget]       = useState(null);
+  const [editFind,         setEditFind]         = useState(null);
+  const [editListing,      setEditListing]      = useState(null);
+  const [editSold,         setEditSold]         = useState(null);
 
   const loading = findsLoading || listingsLoading || soldLoading || revenueLoading;
   const [splashDone, setSplashDone] = useState(false);
@@ -157,6 +163,13 @@ export default function App() {
     if (item) await deleteDoc(doc(db, "finds", item._docId));
   }, [finds]);
 
+  const updateFind = useCallback(async (updated) => {
+    const item = finds.find((f) => f.id === updated.id);
+    if (!item) return;
+    const { _docId, ...data } = updated;
+    await updateDoc(doc(db, "finds", item._docId), data);
+  }, [finds]);
+
   // ── LISTINGS ───────────────────────────────────────────
   const addListing = useCallback(async (listing) => {
     const { _findId, ...rest } = listing;
@@ -169,10 +182,29 @@ export default function App() {
     setTab("listings");
   }, [finds]);
 
+  const updateListing = useCallback(async (updated) => {
+    const item = listings.find((l) => l.id === updated.id);
+    if (!item) return;
+    const { _docId, ...data } = updated;
+    await updateDoc(doc(db, "listings", item._docId), data);
+  }, [listings]);
+
   const deleteListing = useCallback(async (id) => {
     const item = listings.find((l) => l.id === id);
     if (item) await deleteDoc(doc(db, "listings", item._docId));
   }, [listings]);
+
+  const deleteSold = useCallback(async (id) => {
+    const item = sold.find((s) => s.id === id);
+    if (item) await deleteDoc(doc(db, "sold", item._docId));
+  }, [sold]);
+
+  const updateSold = useCallback(async (updated) => {
+    const item = sold.find((s) => s.id === updated.id);
+    if (!item) return;
+    const { _docId, ...data } = updated;
+    await updateDoc(doc(db, "sold", item._docId), data);
+  }, [sold]);
 
   // ── SOLD ───────────────────────────────────────────────
   const markSold = useCallback(async (soldItem) => {
@@ -247,6 +279,7 @@ export default function App() {
                 finds={finds}
                 onAddFind={() => setShowFindModal(true)}
                 onPromote={handlePromote}
+                onEdit={(f) => setEditFind(f)}
                 onDelete={deleteFind}
               />
             )}
@@ -255,10 +288,11 @@ export default function App() {
                 listings={listings}
                 onAddListing={() => { setListingPrefill({}); setShowListingModal(true); }}
                 onMarkSold={(l) => setSoldTarget(l)}
+                onEdit={(l) => setEditListing(l)}
                 onDelete={deleteListing}
               />
             )}
-            {tab === "sold" && <Sold sold={sold} />}
+            {tab === "sold" && <Sold sold={sold} onEdit={(s) => setEditSold(s)} onDelete={deleteSold} />}
           </>
         )}
       </div>
@@ -279,6 +313,27 @@ export default function App() {
           listing={soldTarget}
           onSave={markSold}
           onClose={() => setSoldTarget(null)}
+        />
+      )}
+      {editFind && (
+        <EditFindModal
+          find={editFind}
+          onSave={updateFind}
+          onClose={() => setEditFind(null)}
+        />
+      )}
+      {editListing && (
+        <EditListingModal
+          listing={editListing}
+          onSave={updateListing}
+          onClose={() => setEditListing(null)}
+        />
+      )}
+      {editSold && (
+        <EditSoldModal
+          item={editSold}
+          onSave={updateSold}
+          onClose={() => setEditSold(null)}
         />
       )}
     </div>

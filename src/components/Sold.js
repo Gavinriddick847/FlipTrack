@@ -1,8 +1,8 @@
 import React from "react";
-import { Pill, SectionHeader, Empty } from "./UI";
+import { Pill, SectionHeader, BtnEdit, BtnDanger, Empty } from "./UI";
 import { fmtMoney } from "../utils";
 
-function SoldCard({ item, delay }) {
+function SoldCard({ item, onEdit, onDelete, delay }) {
   const shipping = item.shipping || 0;
   const fees     = item.fees     || 0;
   const profit   = item.price - item.cost - shipping - fees;
@@ -39,11 +39,15 @@ function SoldCard({ item, delay }) {
           {profit >= 0 ? "+" : "-"}{fmtMoney(profit)}
         </span>
       </div>
+      <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
+        <BtnEdit onClick={onEdit}>Edit</BtnEdit>
+        <BtnDanger onClick={onDelete}>Remove</BtnDanger>
+      </div>
     </div>
   );
 }
 
-export default function Sold({ sold }) {
+export default function Sold({ sold, onEdit, onDelete }) {
   const totalNet = sold.reduce((s, i) => {
     const shipping = i.shipping || 0;
     const fees     = i.fees     || 0;
@@ -62,7 +66,13 @@ export default function Sold({ sold }) {
       />
       {sold.length === 0
         ? <Empty icon="✅" text="No sold items" sub="Mark listings as sold to track profit" />
-        : sold.map((s, i) => <SoldCard key={s.id} item={s} delay={i * 0.05} />)
+        : sold.map((s, i) => (
+            <SoldCard
+              key={s.id} item={s} delay={i * 0.05}
+              onEdit={() => onEdit(s)}
+              onDelete={() => onDelete(s.id)}
+            />
+          ))
       }
     </div>
   );

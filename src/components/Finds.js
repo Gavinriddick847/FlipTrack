@@ -1,8 +1,8 @@
 import React from "react";
-import { Pill, SectionHeader, BtnPrimary, BtnTealOutline, BtnDanger, Empty } from "./UI";
+import { Pill, SectionHeader, BtnPrimary, BtnTealOutline, BtnDanger, BtnEdit, Empty } from "./UI";
 import { fmtMoney } from "../utils";
 
-function FindCard({ find, onPromote, onDelete, delay }) {
+function FindCard({ find, onPromote, onEdit, onDelete, delay }) {
   return (
     <div style={{
       background: "var(--navy-700)", border: "1px solid var(--border)",
@@ -25,13 +25,14 @@ function FindCard({ find, onPromote, onDelete, delay }) {
       </div>
       <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
         <BtnTealOutline onClick={onPromote}>→ List This</BtnTealOutline>
+        <BtnEdit onClick={onEdit}>Edit</BtnEdit>
         <BtnDanger onClick={onDelete}>Remove</BtnDanger>
       </div>
     </div>
   );
 }
 
-export default function Finds({ finds, onAddFind, onPromote, onDelete }) {
+export default function Finds({ finds, onAddFind, onPromote, onEdit, onDelete }) {
   return (
     <div>
       <SectionHeader
@@ -44,6 +45,7 @@ export default function Finds({ finds, onAddFind, onPromote, onDelete }) {
             <FindCard
               key={f.id} find={f} delay={i * 0.05}
               onPromote={() => onPromote(f)}
+              onEdit={() => onEdit(f)}
               onDelete={() => onDelete(f.id)}
             />
           ))

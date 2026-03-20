@@ -72,6 +72,17 @@ export function BtnTealOutline({ children, onClick }) {
   );
 }
 
+export function BtnEdit({ children, onClick }) {
+  return (
+    <button onClick={onClick} style={{
+      background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)",
+      borderRadius: 8, padding: "5px 10px", color: "var(--text-secondary)",
+      fontSize: 11, cursor: "pointer", fontFamily: "'Outfit', sans-serif",
+      transition: "all .2s",
+    }}>{children}</button>
+  );
+}
+
 export function BtnDanger({ children, onClick }) {
   return (
     <button onClick={onClick} style={{
